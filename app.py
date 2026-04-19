@@ -10,11 +10,11 @@ load_dotenv()
 # 2. MEMORY BANK: This is the critical fix
 # We store the 'client' and 'chat' in session_state so they NEVER close early
 if "client" not in st.session_state:
-    st.session_state.client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+    st.session_state.client = genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 if "chat" not in st.session_state:
-    st.session_state.chat = st.session_state.client.chats.create(model="gemini-flash-latest")
-
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    st.session_state.chat = model.start_chat(history=[])
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
