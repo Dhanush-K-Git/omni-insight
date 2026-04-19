@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 from dotenv import load_dotenv
-from google import genai
+import google.generativeai as genai
 
 # 1. SETUP: Standard Page Config
 st.set_page_config(page_title="Omni-Insight AI", layout="centered")
