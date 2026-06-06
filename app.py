@@ -7,15 +7,16 @@ import google.generativeai as genai
 st.set_page_config(page_title="Omni-Insight AI", layout="centered")
 load_dotenv()
 
-# 2. MEMORY BANK: This is the critical fix
-# We store the 'client' and 'chat' in session_state so they NEVER close early
-if "client" not in st.session_state:
-    st.session_state.client = genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+# 2. MEMORY BANK: Force Stable Production API Version and Model
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 if "chat" not in st.session_state:
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    st.session_state.chat = model.start_chat(history=[])
-if "messages" not in st.session_state:
+    # 🌟 CHANGED 'gemini-1.5-flash' TO 'gemini-2.5-flash'
+    st.session_state.chat = genai.GenerativeModel(
+        model_name="gemini-2.5-flash"
+    ).start_chat(history=[])
+    
+    # Keeping your chat list initialized from the last fix
     st.session_state.messages = []
 
 # UI Header
@@ -48,8 +49,8 @@ if prompt := st.chat_input("Ask about your PDF..."):
                 f.write(uploaded_file_raw.getbuffer())
             
             # Upload and get response
-            gemini_file = st.session_state.client.files.upload(file="temp_data.pdf")
-            response = st.session_state.chat.send_message(message=[gemini_file, prompt])
+            gemini_file = genai.upload_file(path="temp_data.pdf")
+            response = st.session_state.chat.send_message([gemini_file, prompt])
             
             # Save AI response to history
             st.session_state.messages.append({"role": "assistant", "content": response.text})
